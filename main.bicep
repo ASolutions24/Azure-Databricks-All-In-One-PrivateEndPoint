@@ -181,7 +181,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-09-01' = {
   }
 }
 
-resource workspace 'Microsoft.Databricks/workspaces@2023-02-01' = {
+resource symbolicname 'Microsoft.Databricks/workspaces@2023-02-01' = {
   name: workspaceName
   location: location
   sku: {
