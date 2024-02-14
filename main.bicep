@@ -12,9 +12,6 @@ param requiredNsgRules string = 'NoAzureDatabricksRules'
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-@description('The name of the network security group to create.')
-param nsgName string = 'databricks-nsg'
-
 @description('The pricing tier of workspace.')
 @allowed([
   'trial'
@@ -23,30 +20,20 @@ param nsgName string = 'databricks-nsg'
 ])
 param pricingTier string = 'premium'
 
-@description('CIDR range for the private subnet.')
-param privateSubnetCidr string = '10.179.0.0/18'
+@description('Name of the VNET to add a subnet to')
+param existingVNETName string
 
-@description('The name of the private subnet to create.')
-param privateSubnetName string = 'sn-dbw-private'
-
-@description('CIDR range for the public subnet..')
-param publicSubnetCidr string = '10.179.64.0/18'
-
-@description('The name of the public subnet to create.')
-param publicSubnetName string = 'sn-dbw-public'
-
-@description('CIDR range for the vnet.')
-param vnetCidr string = '10.179.0.0/16'
-
+@description('Name of the subnet to add')
+param PrivateEndpointSubnetName string
 
 @description('CIDR range for the private endpoint subnet..')
 param privateEndpointSubnetCidr string = '10.110.2.128/27'
 
+
+
+
 @description('The name of the subnet to create the private endpoint in.')
 param PrivateEndpointSubnetName string = 'sn-dbw-private-ep'
-
-
-
 @description('The name of the virtual network to create.')
 param vnetName string = 'databricks-vnet'
 
@@ -61,148 +48,17 @@ var privateEndpointName = '${workspaceName}-pvtEndpoint'
 var privateDnsZoneName = 'privatelink.azuredatabricks.net'
 var pvtEndpointDnsGroupName = '${privateEndpointName}/mydnsgroupname'
 
-/*
-resource nsg 'Microsoft.Network/networkSecurityGroups@2022-09-01' = {
-  name: nsgName
-  location: location
-  properties: {
-    securityRules: [
-      {
-        name: 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-worker-inbound'
-        properties: {
-          description: 'Required for worker nodes communication within a cluster.'
-          protocol: '*'
-          sourcePortRange: '*'
-          destinationPortRange: '*'
-          sourceAddressPrefix: 'VirtualNetwork'
-          destinationAddressPrefix: 'VirtualNetwork'
-          access: 'Allow'
-          priority: 100
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-databricks-webapp'
-        properties: {
-          description: 'Required for workers communication with Databricks Webapp.'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          destinationPortRange: '443'
-          sourceAddressPrefix: 'VirtualNetwork'
-          destinationAddressPrefix: 'AzureDatabricks'
-          access: 'Allow'
-          priority: 100
-          direction: 'Outbound'
-        }
-      }
-      {
-        name: 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-sql'
-        properties: {
-          description: 'Required for workers communication with Azure SQL services.'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          destinationPortRange: '3306'
-          sourceAddressPrefix: 'VirtualNetwork'
-          destinationAddressPrefix: 'Sql'
-          access: 'Allow'
-          priority: 101
-          direction: 'Outbound'
-        }
-      }
-      {
-        name: 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-storage'
-        properties: {
-          description: 'Required for workers communication with Azure Storage services.'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          destinationPortRange: '443'
-          sourceAddressPrefix: 'VirtualNetwork'
-          destinationAddressPrefix: 'Storage'
-          access: 'Allow'
-          priority: 102
-          direction: 'Outbound'
-        }
-      }
-      {
-        name: 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-worker-outbound'
-        properties: {
-          description: 'Required for worker nodes communication within a cluster.'
-          protocol: '*'
-          sourcePortRange: '*'
-          destinationPortRange: '*'
-          sourceAddressPrefix: 'VirtualNetwork'
-          destinationAddressPrefix: 'VirtualNetwork'
-          access: 'Allow'
-          priority: 103
-          direction: 'Outbound'
-        }
-      }
-      {
-        name: 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-eventhub'
-        properties: {
-          description: 'Required for worker communication with Azure Eventhub services.'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          destinationPortRange: '9093'
-          sourceAddressPrefix: 'VirtualNetwork'
-          destinationAddressPrefix: 'EventHub'
-          access: 'Allow'
-          priority: 104
-          direction: 'Outbound'
-        }
-      }
-    ]
-  }
-}
 
-resource vnet 'Microsoft.Network/virtualNetworks@2022-09-01' = {
-  name: vnetName
-  location: location
+resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' existing = {
+   name: vnet-sec-dbw-prod
+}
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-03-01' = {
+  parent: vnet
+  name: PrivateEndpointSubnetName
   properties: {
-    addressSpace: {
-      addressPrefixes: [
-        vnetCidr
-      ]
-    }
-    subnets: [
-      {
-        name: publicSubnetName
-        properties: {
-          addressPrefix: publicSubnetCidr
-          networkSecurityGroup: {
-            id: nsg.id
-          }
-          delegations: [
-            {
-              name: 'databricks-del-public'
-              properties: {
-                serviceName: 'Microsoft.Databricks/workspaces'
-              }
-            }
-          ]
-        }
-      }
-      {
-        name: privateSubnetName
-        properties: {
-          addressPrefix: privateSubnetCidr
-          networkSecurityGroup: {
-            id: nsg.id
-          }
-          delegations: [
-            {
-              name: 'databricks-del-private'
-              properties: {
-                serviceName: 'Microsoft.Databricks/workspaces'
-              }
-            }
-          ]
-        }
-      }
-    ]
+    addressPrefix: privateEndpointSubnetCidr
   }
 }
-*/
 resource symbolicname 'Microsoft.Databricks/workspaces@2023-02-01' = {
   name: workspaceName
   location: location
