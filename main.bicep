@@ -36,7 +36,7 @@ param privateEndpointSubnetCidr string = '10.110.2.128/27'
 param PrivateEndpointSubnetName string = 'sn-dbw-private-ep'
 
 @description('The name of the virtual network to create.')
-param vnetName string = 'databricks-vnet'
+param vnetName string = 'vnet-sec-dbw-prod'
 
 @description('The name of the Azure Databricks workspace to create.')
 param workspaceName string
