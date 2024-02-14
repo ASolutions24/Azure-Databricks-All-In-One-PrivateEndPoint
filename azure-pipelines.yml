@@ -15,10 +15,10 @@ jobs:
       - task: AzureResourceManagerTemplateDeployment@3
         inputs:
           deploymentScope: 'Resource Group'
-          azureResourceManagerConnection: 'ASHubServiceConnection'
+          azureResourceManagerConnection: 'prod-service-connection'
           subscriptionId: '39aca73e-1d25-4edf-84d5-ebe0397a816b'
           action: 'Create Or Update Resource Group'
-          resourceGroupName: 'RG-Bicep-ADB'
+          resourceGroupName: 'rg-sec-dbw-prod'
           location: 'Australia East'
           templateLocation: 'Linked artifact'
           csmFile: 'main.bicep'
