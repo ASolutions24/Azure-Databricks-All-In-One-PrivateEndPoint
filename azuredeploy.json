@@ -23,13 +23,6 @@
         "description": "Location for all resources."
       }
     },
-    "nsgName": {
-      "type": "string",
-      "defaultValue": "databricks-nsg",
-      "metadata": {
-        "description": "The name of the network security group to create."
-      }
-    },
     
     "pricingTier": {
       "type": "string",
@@ -43,34 +36,22 @@
         "description": "The pricing tier of workspace."
       }
     },
-    "privateSubnetCidr": {
+    
+    "privateEndpointSubnetCidr": {
       "type": "string",
       "defaultValue": "10.110.2.128/27",
       "metadata": {
-        "description": "CIDR range for the private subnet."
+        "description": "CIDR range for the private endpoint subnet.."
       }
     },
-    "privateSubnetName": {
+    "PrivateEndpointSubnetName": {
       "type": "string",
-      "defaultValue": "sn-dbw-private",
+      "defaultValue": "sn-dbw-private-pe",
       "metadata": {
-        "description": "The name of the private subnet to create."
+        "description": "The name of the subnet to create the private endpoint in."
       }
     },
-    "publicSubnetCidr": {
-      "type": "string",
-      "defaultValue": "10.179.64.0/18",
-      "metadata": {
-        "description": "CIDR range for the public subnet.."
-      }
-    },
-    "publicSubnetName": {
-      "type": "string",
-      "defaultValue": "sn-dbw-public",
-      "metadata": {
-        "description": "The name of the public subnet to create."
-      }
-    },
+    
     "vnetCidr": {
       "type": "string",
       "defaultValue": "10.179.0.0/16",
@@ -86,7 +67,6 @@
       }
     },
 
-
     "workspaceName": {
       "type": "string",
       "metadata": {
@@ -97,103 +77,12 @@
   "variables": {
     "managedResourceGroupName": "[format('databricks-rg-{0}-{1}', parameters('workspaceName'), uniqueString(parameters('workspaceName'), resourceGroup().id))]",
     "trimmedMRGName": "[substring(variables('managedResourceGroupName'), 0, min(length(variables('managedResourceGroupName')), 90))]",
-    "managedResourceGroupId": "[format('{0}/resourceGroups/{1}', subscription().id, variables('trimmedMRGName'))]"
+    "managedResourceGroupId": "[format('{0}/resourceGroups/{1}', subscription().id, variables('trimmedMRGName'))]",
+    "privateEndpointName": "[format('{0}-pvtEndpoint', parameters('workspaceName'))]",
+    "privateDnsZoneName": "privatelink.azuredatabricks.net",
+    "pvtEndpointDnsGroupName": "[format('{0}/mydnsgroupname', variables('privateEndpointName'))]"
   },
   "resources": [
-    {
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2022-09-01",
-      "name": "[parameters('nsgName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "securityRules": [
-          {
-            "name": "Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-worker-inbound",
-            "properties": {
-              "description": "Required for worker nodes communication within a cluster.",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "*",
-              "sourceAddressPrefix": "VirtualNetwork",
-              "destinationAddressPrefix": "VirtualNetwork",
-              "access": "Allow",
-              "priority": 100,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-databricks-webapp",
-            "properties": {
-              "description": "Required for workers communication with Databricks Webapp.",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "443",
-              "sourceAddressPrefix": "VirtualNetwork",
-              "destinationAddressPrefix": "AzureDatabricks",
-              "access": "Allow",
-              "priority": 100,
-              "direction": "Outbound"
-            }
-          },
-          {
-            "name": "Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-sql",
-            "properties": {
-              "description": "Required for workers communication with Azure SQL services.",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "3306",
-              "sourceAddressPrefix": "VirtualNetwork",
-              "destinationAddressPrefix": "Sql",
-              "access": "Allow",
-              "priority": 101,
-              "direction": "Outbound"
-            }
-          },
-          {
-            "name": "Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-storage",
-            "properties": {
-              "description": "Required for workers communication with Azure Storage services.",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "443",
-              "sourceAddressPrefix": "VirtualNetwork",
-              "destinationAddressPrefix": "Storage",
-              "access": "Allow",
-              "priority": 102,
-              "direction": "Outbound"
-            }
-          },
-          {
-            "name": "Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-worker-outbound",
-            "properties": {
-              "description": "Required for worker nodes communication within a cluster.",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "*",
-              "sourceAddressPrefix": "VirtualNetwork",
-              "destinationAddressPrefix": "VirtualNetwork",
-              "access": "Allow",
-              "priority": 103,
-              "direction": "Outbound"
-            }
-          },
-          {
-            "name": "Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-eventhub",
-            "properties": {
-              "description": "Required for worker communication with Azure Eventhub services.",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "9093",
-              "sourceAddressPrefix": "VirtualNetwork",
-              "destinationAddressPrefix": "EventHub",
-              "access": "Allow",
-              "priority": 104,
-              "direction": "Outbound"
-            }
-          }
-        ]
-      }
-    },
     {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2022-09-01",
