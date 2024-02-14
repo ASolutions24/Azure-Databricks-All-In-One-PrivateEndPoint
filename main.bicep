@@ -21,7 +21,7 @@ param location string = resourceGroup().location
 param pricingTier string = 'premium'
 
 @description('Name of the VNET to add a subnet to')
-param existingVNETName string
+param existingVNETName string = 'vnet-sec-dbw-prod'
 
 @description('Name of the subnet to add')
 param PrivateEndpointSubnetName string
@@ -29,11 +29,9 @@ param PrivateEndpointSubnetName string
 @description('CIDR range for the private endpoint subnet..')
 param privateEndpointSubnetCidr string = '10.110.2.128/27'
 
-
-
-
 @description('The name of the subnet to create the private endpoint in.')
 param PrivateEndpointSubnetName string = 'sn-dbw-private-ep'
+
 @description('The name of the virtual network to create.')
 param vnetName string = 'databricks-vnet'
 
@@ -50,7 +48,7 @@ var pvtEndpointDnsGroupName = '${privateEndpointName}/mydnsgroupname'
 
 
 resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' existing = {
-   name: vnet-sec-dbw-prod
+   name: existingVNETName
 }
 resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-03-01' = {
   parent: vnet
@@ -69,8 +67,8 @@ resource symbolicname 'Microsoft.Databricks/workspaces@2023-02-01' = {
     managedResourceGroupId: managedResourceGroupId
     parameters: {
       customVirtualNetworkId: {
-        //value: vnet.id
-        value: '/subscriptions/2f054702-74ef-49dc-8055-920692478b36/resourceGroups/rg-sec-dbw-prod/providers/Microsoft.Network/virtualNetworks/vnet-sec-dbw-prod'
+        value: vnet.id
+        //value: '/subscriptions/2f054702-74ef-49dc-8055-920692478b36/resourceGroups/rg-sec-dbw-prod/providers/Microsoft.Network/virtualNetworks/vnet-sec-dbw-prod'
       }
       customPublicSubnetName: {
         value: publicSubnetName
