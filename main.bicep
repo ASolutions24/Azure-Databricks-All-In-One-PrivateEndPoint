@@ -29,9 +29,6 @@ param privateSubnetName string = 'sn-dbw-private'
 @description('Name of the VNET to add a subnet to')
 param existingVNETName string = 'vnet-sec-dbw-prod'
 
-@description('Name of the subnet to add')
-param PrivateEndpointSubnetName string
-
 @description('CIDR range for the private endpoint subnet..')
 param privateEndpointSubnetCidr string = '10.110.2.128/27'
 
