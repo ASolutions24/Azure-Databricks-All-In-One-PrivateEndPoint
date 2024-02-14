@@ -1,5 +1,13 @@
 @description('Specifies whether to deploy Azure Databricks workspace with secure cluster connectivity (SCC) enabled or not (No Public IP)')
 param disablePublicIp bool = true
+param publicNetworkAccess string = 'Disabled'
+
+@description('Indicates whether to retain or remove the AzureDatabricks outbound NSG rule - possible values are AllRules or NoAzureDatabricksRules.')
+@allowed([
+  'AllRules'
+  'NoAzureDatabricksRules'
+])
+param requiredNsgRules string = 'NoAzureDatabricksRules'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
@@ -30,6 +38,15 @@ param publicSubnetName string = 'sn-dbw-public'
 @description('CIDR range for the vnet.')
 param vnetCidr string = '10.179.0.0/16'
 
+
+@description('CIDR range for the private endpoint subnet..')
+param privateEndpointSubnetCidr string = '10.110.2.128/27'
+
+@description('The name of the subnet to create the private endpoint in.')
+param PrivateEndpointSubnetName string = 'default'
+
+
+
 @description('The name of the virtual network to create.')
 param vnetName string = 'databricks-vnet'
 
@@ -39,6 +56,11 @@ param workspaceName string
 var managedResourceGroupName = 'databricks-rg-${workspaceName}-${uniqueString(workspaceName, resourceGroup().id)}'
 var trimmedMRGName = substring(managedResourceGroupName, 0, min(length(managedResourceGroupName), 90))
 var managedResourceGroupId = '${subscription().id}/resourceGroups/${trimmedMRGName}'
+
+var privateEndpointName = '${workspaceName}-pvtEndpoint'
+var privateDnsZoneName = 'privatelink.azuredatabricks.net'
+var pvtEndpointDnsGroupName = '${privateEndpointName}/mydnsgroupname'
+
 /*
 resource nsg 'Microsoft.Network/networkSecurityGroups@2022-09-01' = {
   name: nsgName
@@ -205,4 +227,62 @@ resource symbolicname 'Microsoft.Databricks/workspaces@2023-02-01' = {
       }
     }
   }
+}
+
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2021-08-01' = {
+  name: privateEndpointName
+  location: location
+  properties: {
+    subnet: {
+      id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, PrivateEndpointSubnetName)
+    }
+    privateLinkServiceConnections: [
+      {
+        name: privateEndpointName
+        properties: {
+          privateLinkServiceId: symbolicname.id
+          groupIds: [
+            'databricks_ui_api'
+          ]
+        }
+      }
+    ]
+  }
+}
+
+resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+  name: privateDnsZoneName
+  location: 'global'
+  dependsOn: [
+    privateEndpoint
+  ]
+}
+
+resource privateDnsZoneName_privateDnsZoneName_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  parent: privateDnsZone
+  name: '${privateDnsZoneName}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: vnet.id
+    }
+  }
+}
+
+resource pvtEndpointDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-12-01' = {
+  name: pvtEndpointDnsGroupName
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'config1'
+        properties: {
+          privateDnsZoneId: privateDnsZone.id
+        }
+      }
+    ]
+  }
+  dependsOn: [
+    privateEndpoint
+  ]
 }
