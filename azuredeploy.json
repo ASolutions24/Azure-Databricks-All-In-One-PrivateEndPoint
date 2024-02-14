@@ -59,6 +59,21 @@
       }
     },
     
+    "publicSubnetName": {
+      "type": "string",
+      "defaultValue": "sn-dbw-public",
+      "metadata": {
+        "description": "The name of the public subnet to create."
+      }
+    },
+    "privateSubnetName": {
+      "type": "string",
+      "defaultValue": "sn-dbw-private",
+      "metadata": {
+        "description": "The name of the private subnet to create."
+      }
+    },
+    
     "existingVNETName": {
       "type": "string",
       "metadata": {
