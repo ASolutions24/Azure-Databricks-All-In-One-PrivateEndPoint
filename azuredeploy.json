@@ -121,12 +121,12 @@
       }
     },
 
-    {
-      "type": "Microsoft.Databricks/workspaces",
-      "apiVersion": "2023-02-01",
-      "name": "[parameters('workspaceName')]",
-      "location": "[parameters('location')]",
-      "sku": {
+   {
+     "type": "Microsoft.Databricks/workspaces",
+     "apiVersion": "2023-02-01",
+     "name": "[parameters('workspaceName')]",
+     "location": "[parameters('location')]",
+     "sku": {
         "name": "[parameters('pricingTier')]"
       },
       "properties": {
@@ -154,7 +154,7 @@
       ]
     },
 
-        {
+    {
       "type": "Microsoft.Network/privateEndpoints",
       "apiVersion": "2021-08-01",
       "name": "[variables('privateEndpointName')]",
