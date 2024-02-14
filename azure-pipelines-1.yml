@@ -1,0 +1,26 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+  - job: Deploy
+    steps:
+      - task: AzureResourceManagerTemplateDeployment@3
+        inputs:
+          deploymentScope: 'Resource Group'
+          azureResourceManagerConnection: 'New-Prod-ServiceConnection'
+          subscriptionId: '2f054702-74ef-49dc-8055-920692478b36'
+          action: 'Create Or Update Resource Group'
+          resourceGroupName: 'rg-sec-dbw-prod'
+          location: 'Australia East'
+          templateLocation: 'Linked artifact'
+          csmFile: 'main.bicep'
+          csmParametersFile: 'azuredeploy.parameters.json'
+          deploymentMode: 'Validation'
