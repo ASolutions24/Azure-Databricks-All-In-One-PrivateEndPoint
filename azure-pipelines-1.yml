@@ -23,4 +23,4 @@ jobs:
           templateLocation: 'Linked artifact'
           csmFile: 'main.bicep'
           csmParametersFile: 'azuredeploy.parameters.json'
-          deploymentMode: 'Validation'
+          deploymentMode: 'Incremental'
