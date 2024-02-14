@@ -1,5 +1,5 @@
 @description('Specifies whether to deploy Azure Databricks workspace with secure cluster connectivity (SCC) enabled or not (No Public IP)')
-param disablePublicIp bool = false
+param disablePublicIp bool = true
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
