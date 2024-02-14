@@ -20,6 +20,12 @@ param location string = resourceGroup().location
 ])
 param pricingTier string = 'premium'
 
+@description('The name of the public subnet to create.')
+param publicSubnetName string = 'sn-dbw-public'
+
+@description('The name of the private subnet to create.')
+param privateSubnetName string = 'sn-dbw-private'
+
 @description('Name of the VNET to add a subnet to')
 param existingVNETName string = 'vnet-sec-dbw-prod'
 
