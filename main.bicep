@@ -43,7 +43,7 @@ param vnetCidr string = '10.179.0.0/16'
 param privateEndpointSubnetCidr string = '10.110.2.128/27'
 
 @description('The name of the subnet to create the private endpoint in.')
-param PrivateEndpointSubnetName string = 'sn-dbw-private'
+param PrivateEndpointSubnetName string = 'sn-dbw-private-ep'
 
 
 
