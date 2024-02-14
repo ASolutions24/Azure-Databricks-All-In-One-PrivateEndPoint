@@ -19,13 +19,13 @@ param pricingTier string = 'premium'
 param privateSubnetCidr string = '10.179.0.0/18'
 
 @description('The name of the private subnet to create.')
-param privateSubnetName string = 'private-subnet'
+param privateSubnetName string = 'sn-dbw-private'
 
 @description('CIDR range for the public subnet..')
 param publicSubnetCidr string = '10.179.64.0/18'
 
 @description('The name of the public subnet to create.')
-param publicSubnetName string = 'public-subnet'
+param publicSubnetName string = 'sn-dbw-public'
 
 @description('CIDR range for the vnet.')
 param vnetCidr string = '10.179.0.0/16'
