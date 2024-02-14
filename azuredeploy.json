@@ -45,7 +45,7 @@
     },
     "privateSubnetCidr": {
       "type": "string",
-      "defaultValue": "10.179.0.0/18",
+      "defaultValue": "10.110.2.128/27",
       "metadata": {
         "description": "CIDR range for the private subnet."
       }
