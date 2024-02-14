@@ -30,7 +30,6 @@
         "description": "The name of the network security group to create."
       }
     },
-    //Testing Sync
     "pricingTier": {
       "type": "string",
       "defaultValue": "premium",
@@ -52,7 +51,7 @@
     },
     "privateSubnetName": {
       "type": "string",
-      "defaultValue": "sn-dbw-private",
+      "defaultValue": "private-subnet",
       "metadata": {
         "description": "The name of the private subnet to create."
       }
@@ -66,7 +65,7 @@
     },
     "publicSubnetName": {
       "type": "string",
-      "defaultValue": "sn-dbw-public",
+      "defaultValue": "public-subnet",
       "metadata": {
         "description": "The name of the public subnet to create."
       }
@@ -80,13 +79,11 @@
     },
     "vnetName": {
       "type": "string",
-      "defaultValue": "vnet-sec-dbw-prod",
+      "defaultValue": "databricks-vnet",
       "metadata": {
         "description": "The name of the virtual network to create."
       }
     },
-
-
     "workspaceName": {
       "type": "string",
       "metadata": {
@@ -258,8 +255,7 @@
         "managedResourceGroupId": "[variables('managedResourceGroupId')]",
         "parameters": {
           "customVirtualNetworkId": {
-            //"value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
-              "value": "/subscriptions/2f054702-74ef-49dc-8055-920692478b36/resourceGroups/rg-sec-dbw-prod/providers/Microsoft.Network/virtualNetworks/vnet-sec-dbw-prod"
+            "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
           },
           "customPublicSubnetName": {
             "value": "[parameters('publicSubnetName')]"

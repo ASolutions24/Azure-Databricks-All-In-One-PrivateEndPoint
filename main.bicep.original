@@ -39,7 +39,7 @@ param workspaceName string
 var managedResourceGroupName = 'databricks-rg-${workspaceName}-${uniqueString(workspaceName, resourceGroup().id)}'
 var trimmedMRGName = substring(managedResourceGroupName, 0, min(length(managedResourceGroupName), 90))
 var managedResourceGroupId = '${subscription().id}/resourceGroups/${trimmedMRGName}'
-/*
+
 resource nsg 'Microsoft.Network/networkSecurityGroups@2022-09-01' = {
   name: nsgName
   location: location
@@ -180,7 +180,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-09-01' = {
     ]
   }
 }
-*/
+
 resource symbolicname 'Microsoft.Databricks/workspaces@2023-02-01' = {
   name: workspaceName
   location: location
@@ -191,8 +191,7 @@ resource symbolicname 'Microsoft.Databricks/workspaces@2023-02-01' = {
     managedResourceGroupId: managedResourceGroupId
     parameters: {
       customVirtualNetworkId: {
-        //value: vnet.id
-        value: '/subscriptions/2f054702-74ef-49dc-8055-920692478b36/resourceGroups/rg-sec-dbw-prod/providers/Microsoft.Network/virtualNetworks/vnet-sec-dbw-prod'
+        value: vnet.id
       }
       customPublicSubnetName: {
         value: publicSubnetName
